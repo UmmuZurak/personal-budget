@@ -16,7 +16,7 @@ const validateInput = (req, res, next) => {
     return res.status(400).send("Amount is required.");
   }
 
-  if (typeof req.body.amount !== "number" || Number(req.body.amount) <= 0) {
+  if (typeof Number(req.body.amount) !== "number" || Number(req.body.amount) <= 0) {
     return res.status(400).send("Amount must be a number and be greater than 0.");
   }
 
@@ -38,11 +38,12 @@ apiRouter.get("/", (req, res, next) => {
 
 // create an envelope route
 apiRouter.post("/", validateInput, (req, res, next) => {
+  const amount = Number(req.body.amount);
   const envelope = {
     id: ENVELOPES.length + 1,
-    amount: req.body.amount,
+    amount,
     category: req.body.category,
-    balance: req.body.amount,
+    balance: amount,
     amount_spent: 0,
   };
 

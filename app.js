@@ -11,6 +11,11 @@ app.use(cors());
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
+// get request to send "Hello World" message to http://localhost:3000/
+app.get("/", (req, res, next) => {
+  res.send("Hello World");
+});
+
 module.exports = {
   app,
 };

@@ -51,4 +51,10 @@ apiRouter.post("/", validateInput, (req, res, next) => {
   res.status(201).send(envelope);
 });
 
+// get request for total cost
+apiRouter.get("/cost", (req, res, next) => {
+  const total_cost = ENVELOPES.reduce((total, item) => (total += item.balance), 0);
+  res.send({ total_cost });
+});
+
 module.exports = apiRouter;

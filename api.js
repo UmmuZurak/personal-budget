@@ -1,3 +1,6 @@
+const { getAllEnvelopes, getEnvelopeById, createEnvelope, deleteEnvelope } = require("./queries");
+const { validateAmount, updateBalance, validateInput, validateCategory } = require("./utils");
+
 const apiRouter = require("express").Router();
 
 const ENVELOPES = [
@@ -11,102 +14,61 @@ const ENVELOPES = [
 ];
 const TOTAL_COST = ENVELOPES.reduce((total, item) => (total += item.balance), 0);
 
-const validateInput = (req, res, next) => {
-  if (!req.body.amount) {
-    return res.status(400).send("Amount is required.");
-  }
-
-  if (typeof Number(req.body.amount) !== "number" || Number(req.body.amount) <= 0) {
-    return res.status(400).send("Amount must be a number and be greater than 0.");
-  }
-
-  if (!req.body.category) {
-    return res.status(400).send("Catgeory is required.");
-  }
-
-  if (typeof req.body.category !== "string") {
-    return res.status(400).send("Category must be a string.");
-  }
-
-  next();
-};
-
-apiRouter.param("envelopeId", (req, res, next, envelopeId) => {
-  const envelopeIndex = ENVELOPES.findIndex((envelope) => envelope.id === Number(envelopeId));
-  if (envelopeIndex !== -1) {
-    req.envelopeId = envelopeId;
-    req.envelopeIndex = envelopeIndex;
-    req.envelope = ENVELOPES[envelopeIndex];
-
-    next();
-  } else {
-    res.status(404).send(`Envelope with ID ${envelopeId} not found.`);
-  }
-});
+apiRouter.param("envelopeId", getEnvelopeById);
 
 // get request for fetching all envelopes
-apiRouter.get("/", (req, res, next) => {
-  res.send(ENVELOPES);
+apiRouter.get("/", getAllEnvelopes, (req, res) => {
+  res.json(req.envelopes);
 });
 
 // create an envelope route
-apiRouter.post("/", validateInput, (req, res, next) => {
-  const amount = Number(req.body.amount);
-  const envelope = {
-    id: ENVELOPES.length + 1,
-    amount,
-    category: req.body.category,
-    balance: amount,
-    amount_spent: 0,
-  };
-
-  ENVELOPES.push(envelope);
-
-  res.status(201).send(envelope);
-});
+apiRouter.post("/", validateInput, validateCategory, createEnvelope);
 
 // get request for total cost
-apiRouter.get("/cost", (req, res, next) => {
-  const total_cost = ENVELOPES.reduce((total, item) => (total += item.balance), 0);
+apiRouter.get("/cost", getAllEnvelopes,  (req, res, next) => {
+  const total_cost = req.envelopes.reduce((total, item) => (total += item.balance), 0);
   res.send({ total_cost });
 });
 
 // get single envelope
 apiRouter.get("/:envelopeId", (req, res, next) => {
-  res.send(req.envelope);
+  res.json(req.envelope);
 });
 
 // spend from an envelope
-apiRouter.put("/:envelopeId/spend", (req, res, next) => {
-  const amountSpent = Number(req.body.amount);
-  console.log("amountSpent", amountSpent);
-
-  // check if amout is a number
-  if (typeof amountSpent !== "number") {
-    return res.status(400).send("Amount must be a number.");
-  }
-
-  // check if amount is greater than 0
-  if (amountSpent <= 0) {
-    return res.status(400).send("Amount must be more than 0.");
-  }
-
-  //check if amount sent is more than envelope's balance
-  if (amountSpent > req.envelope.balance) {
-    return res.status(400).send("Amount is more than remaining balance.");
-  }
-
-  const updatedAmountSpent = req.envelope.amount_spent + amountSpent;
-  const updatedBalance = req.envelope.amount - updatedAmountSpent;
-  const updatedEnvelope = {
-    ...req.envelope,
-    amount_spent: updatedAmountSpent,
-    balance: updatedBalance,
-  };
+apiRouter.put("/:envelopeId/spend", validateAmount, (req, res, next) => {
+  const updatedEnvelope = updateBalance("decrease", req.envelope, req.body.amount);
 
   ENVELOPES[req.envelopeIndex] = updatedEnvelope;
 
   res.send(updatedEnvelope);
+});
+
+// delete an envelope
+apiRouter.delete("/:envelopeId", deleteEnvelope);
+
+// transfer amount from one envelope to the other
+apiRouter.put("/:envelopeId/transfer", validateAmount, (req, res, next) => {
+  const tranferToEnvelopeIndex = ENVELOPES.findIndex(
+    (envelope) => envelope.id === req.body.transfer_to,
+  );
+
+  if (tranferToEnvelopeIndex !== -1) {
+    const { amount } = req.body;
+    const tranferToEnvelope = ENVELOPES[tranferToEnvelopeIndex];
+    const updatedTransferFromEnvelope = updateBalance("decrease", req.envelope, amount);
+    const updatedTransferToEnvelope = updateBalance("increase", tranferToEnvelope, amount);
+
+    ENVELOPES[req.envelopeIndex] = updatedTransferFromEnvelope;
+    ENVELOPES[tranferToEnvelopeIndex] = updatedTransferToEnvelope;
+
+    res.send({
+      transferred_from: updatedTransferFromEnvelope,
+      transferred_to: updatedTransferToEnvelope,
+    });
+  } else {
+    return res.status(400).send(`Envelope to transfer to not found`);
+  }
 });
 
 module.exports = apiRouter;

@@ -1,5 +1,13 @@
-const { getAllEnvelopes, getEnvelopeById, createEnvelope, deleteEnvelope } = require("./queries");
-const { validateAmount, updateBalance, validateInput, validateCategory } = require("./utils");
+const {
+  getAllEnvelopes,
+  getEnvelopeById,
+  createEnvelope,
+  deleteEnvelope,
+  getTransferToEnvelopeById,
+  getEnvelopeByCategory,
+  transferTo,
+} = require("./queries");
+const { validateAmount, updateBalance, validateInput } = require("./utils");
 
 const apiRouter = require("express").Router();
 
@@ -22,10 +30,10 @@ apiRouter.get("/", getAllEnvelopes, (req, res) => {
 });
 
 // create an envelope route
-apiRouter.post("/", validateInput, validateCategory, createEnvelope);
+apiRouter.post("/", validateInput, getEnvelopeByCategory, createEnvelope);
 
 // get request for total cost
-apiRouter.get("/cost", getAllEnvelopes,  (req, res, next) => {
+apiRouter.get("/cost", getAllEnvelopes, (req, res, next) => {
   const total_cost = req.envelopes.reduce((total, item) => (total += item.balance), 0);
   res.send({ total_cost });
 });
@@ -48,27 +56,11 @@ apiRouter.put("/:envelopeId/spend", validateAmount, (req, res, next) => {
 apiRouter.delete("/:envelopeId", deleteEnvelope);
 
 // transfer amount from one envelope to the other
-apiRouter.put("/:envelopeId/transfer", validateAmount, (req, res, next) => {
-  const tranferToEnvelopeIndex = ENVELOPES.findIndex(
-    (envelope) => envelope.id === req.body.transfer_to,
-  );
-
-  if (tranferToEnvelopeIndex !== -1) {
-    const { amount } = req.body;
-    const tranferToEnvelope = ENVELOPES[tranferToEnvelopeIndex];
-    const updatedTransferFromEnvelope = updateBalance("decrease", req.envelope, amount);
-    const updatedTransferToEnvelope = updateBalance("increase", tranferToEnvelope, amount);
-
-    ENVELOPES[req.envelopeIndex] = updatedTransferFromEnvelope;
-    ENVELOPES[tranferToEnvelopeIndex] = updatedTransferToEnvelope;
-
-    res.send({
-      transferred_from: updatedTransferFromEnvelope,
-      transferred_to: updatedTransferToEnvelope,
-    });
-  } else {
-    return res.status(400).send(`Envelope to transfer to not found`);
-  }
-});
+apiRouter.put(
+  "/:envelopeId/transfer/:transferToId",
+  validateAmount,
+  getTransferToEnvelopeById,
+  transferTo,
+);
 
 module.exports = apiRouter;

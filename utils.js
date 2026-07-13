@@ -69,11 +69,8 @@ const validateInput = (req, res, next) => {
   next();
 };
 
-const validateCategory = getEnvelopeByCategory;
-
 module.exports = {
   validateAmount,
   updateBalance,
   validateInput,
-  validateCategory
 };

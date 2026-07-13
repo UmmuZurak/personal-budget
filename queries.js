@@ -1,5 +1,6 @@
 require("dotenv/config");
 const pg = require("pg");
+const { updateBalance } = require("./utils");
 const { Pool } = pg;
 
 const pool = new Pool({
@@ -12,7 +13,7 @@ const pool = new Pool({
 
 const getAllEnvelopes = async (req, res, next) => {
   try {
-    const result = await pool.query("SELECT * FROM envelopes");
+    const result = await pool.query("SELECT * FROM envelopes ORDER BY id");
     req.envelopes = result.rows;
     next();
   } catch (error) {
@@ -79,10 +80,65 @@ const deleteEnvelope = async (req, res) => {
   }
 };
 
+const getTransferToEnvelopeById = async (req, res, next) => {
+  try {
+    const id = req.params.transferToId;
+    const result = await pool.query("SELECT * FROM envelopes WHERE id = $1", [id]);
+    const envelope = result.rows[0];
+    if (envelope) {
+      req.transferToId = id;
+      req.transferToEnvelope = envelope;
+      next();
+    } else {
+      res.status(404).json({ message: `Transfer to envelope with ID ${id} not found.` });
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const transferTo = async (req, res) => {
+  try {
+    const amount = Number(req.body.amount);
+    const updatedTransferFromEnvelope = updateBalance("decrease", req.envelope, amount);
+    const updatedTransferToEnvelope = updateBalance("increase", req.transferToEnvelope, amount);
+
+    const {
+      amount: fromAmount,
+      balance: fromBalance,
+      amount_spent: fromAmountSpent,
+      id: fromId,
+    } = updatedTransferFromEnvelope;
+    const {
+      amount: toAmount,
+      balance: toBalance,
+      amount_spent: toAmountSpent,
+      id: toId,
+    } = updatedTransferToEnvelope;
+    await pool.query(
+      "UPDATE envelopes SET amount = $1, balance = $2, amount_spent = $3 WHERE id = $4",
+      [fromAmount, fromBalance, fromAmountSpent, fromId],
+    );
+    await pool.query(
+      "UPDATE envelopes SET amount = $1, balance = $2, amount_spent = $3 WHERE id = $4",
+      [toAmount, toBalance, toAmountSpent, toId],
+    );
+
+    res.json({
+      transfer_from: updatedTransferFromEnvelope,
+      transfer_to: updatedTransferToEnvelope,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   getAllEnvelopes,
   getEnvelopeById,
   getEnvelopeByCategory,
   createEnvelope,
   deleteEnvelope,
+  getTransferToEnvelopeById,
+  transferTo,
 };

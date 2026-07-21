@@ -100,6 +100,10 @@ const getTransferToEnvelopeById = async (req, res, next) => {
 const transferTo = async (req, res) => {
   try {
     const amount = Number(req.body.amount);
+    //check if amount sent is more than envelope's balance
+    if (amount > req.envelope.balance) {
+      return res.status(400).send("Amount is more than remaining balance.");
+    }
     const updatedTransferFromEnvelope = updateBalance("decrease", req.envelope, amount);
     const updatedTransferToEnvelope = updateBalance("increase", req.transferToEnvelope, amount);
 
@@ -124,9 +128,13 @@ const transferTo = async (req, res) => {
       [toAmount, toBalance, toAmountSpent, toId],
     );
 
+    const result = await pool.query(
+      "INSERT INTO transactions (amount, recipient_id, sender_id, date) VALUES ($1, $2, $3, $4) RETURNING *",
+      [amount, toId, fromId, new Date()],
+    );
+
     res.json({
-      transfer_from: updatedTransferFromEnvelope,
-      transfer_to: updatedTransferToEnvelope,
+      transaction: result.rows[0],
     });
   } catch (error) {
     throw error;

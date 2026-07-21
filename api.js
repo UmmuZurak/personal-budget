@@ -45,6 +45,10 @@ apiRouter.get("/:envelopeId", (req, res, next) => {
 
 // spend from an envelope
 apiRouter.put("/:envelopeId/spend", validateAmount, (req, res, next) => {
+  //check if amount sent is more than envelope's balance
+  if (amount > req.envelope.balance) {
+    return res.status(400).send("Amount is more than remaining balance.");
+  }
   const updatedEnvelope = updateBalance("decrease", req.envelope, req.body.amount);
 
   ENVELOPES[req.envelopeIndex] = updatedEnvelope;

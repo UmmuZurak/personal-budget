@@ -1,0 +1,852 @@
+
+"openapi": "3.2.0"
+"info":
+  "title": "Personal Budget API"
+  "description": "This is Personal Budget API is created to allow users create and manage a personal budget. It uses the Envelope budgeting principles and allows users to manage budget envelopes and track the balance of each envelope.\n\nIt is built with Express, Nodejs and JavaScript."
+  "version": "1.0.13"
+"servers":
+  -
+    "url": "https://localhost:3000/api/"
+    "description": "Production server (OAS 3.2)"
+  -
+    "url": "https://localhost:3000/api/"
+    "description": "Staging server"
+"paths":
+  "/envelopes":
+    "get":
+      "tags":
+        - "envelopes"
+      "summary": "Get all envelopes"
+      "description": "Get all envelopes listings"
+      "responses":
+        "default":
+          "description": "Unexpected error"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "message":
+                    "type": "string"
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                      "format": "int64"
+                      "examples":
+                        - 10
+                    "amount":
+                      "type": "integer"
+                      "format": "int64"
+                      "examples":
+                        - 1200
+                    "amount_spent":
+                      "type": "integer"
+                      "format": "int64"
+                      "examples":
+                        - 150
+                    "balance":
+                      "type": "integer"
+                      "format": "int64"
+                      "examples":
+                        - 1050
+                    "category":
+                      "type": "string"
+                      "example": "food"
+                  "xml":
+                    "name": "envelopes"
+    "post":
+      "tags":
+        - "envelopes"
+      "summary": "Create new envelope"
+      "description": "Add new envelope"
+      "requestBody":
+        "description": "Create new envelope"
+        "content":
+          "application/json":
+            "schema":
+              "required":
+                - "amount"
+                - "category"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "category":
+                  "type": "string"
+                  "example": "food"
+              "xml":
+                "name": "envelopes"
+          "application/x-www-form-urlencoded":
+            "schema":
+              "required":
+                - "amount"
+                - "category"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "category":
+                  "type": "string"
+                  "example": "food"
+              "xml":
+                "name": "envelopes"
+        "required": true
+      "responses":
+        "201":
+          "description": "Successful operation"
+        "400":
+          "description": "Invalid input"
+        "422":
+          "description": "Validation exception"
+  "/envelopes/{envelopeId}":
+    "get":
+      "tags":
+        - "envelopes"
+      "summary": "Get a single envelope"
+      "description": "Get a single envelope"
+      "parameters":
+        -
+          "name": "envelopeId"
+          "in": "path"
+          "description": "ID of envelope"
+          "required": true
+          "schema":
+            "type": "integer"
+            "format": "int64"
+      "responses":
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 10
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1200
+                  "amount_spent":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 150
+                  "balance":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1050
+                  "category":
+                    "type": "string"
+                    "example": "food"
+                "xml":
+                  "name": "envelopes"
+            "application/x-www-form-urlencoded":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 10
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1200
+                  "amount_spent":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 150
+                  "balance":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1050
+                  "category":
+                    "type": "string"
+                    "example": "food"
+                "xml":
+                  "name": "envelopes"
+        "400":
+          "description": "Envelope ID is Invalid"
+        "404":
+          "description": "Envelope ID not found"
+    "put":
+      "tags":
+        - "envelopes"
+      "summary": "Update an envelope by ID"
+      "description": "Update an envelope by ID"
+      "parameters":
+        -
+          "name": "envelopeId"
+          "in": "path"
+          "description": "ID of envelope"
+          "required": true
+          "schema":
+            "type": "integer"
+            "format": "int64"
+      "requestBody":
+        "description": "Update an envelope"
+        "content":
+          "application/json":
+            "schema":
+              "required":
+                - "amount"
+                - "category"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "category":
+                  "type": "string"
+                  "example": "food"
+              "xml":
+                "name": "envelopes"
+          "application/x-www-form-urlencoded":
+            "schema":
+              "required":
+                - "amount"
+                - "category"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "category":
+                  "type": "string"
+                  "example": "food"
+              "xml":
+                "name": "envelopes"
+        "required": true
+      "responses":
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 10
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1200
+                  "amount_spent":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 150
+                  "balance":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1050
+                  "category":
+                    "type": "string"
+                    "example": "food"
+                "xml":
+                  "name": "envelopes"
+            "application/x-www-form-urlencoded":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 10
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1200
+                  "amount_spent":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 150
+                  "balance":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1050
+                  "category":
+                    "type": "string"
+                    "example": "food"
+                "xml":
+                  "name": "envelopes"
+        "400":
+          "description": "Envelope ID is Invalid"
+        "404":
+          "description": "Envelope ID not found"
+    "delete":
+      "tags":
+        - "envelopes"
+      "summary": "Delete an envelope by ID"
+      "description": "Delete an envelope by ID"
+      "parameters":
+        -
+          "name": "envelopeId"
+          "in": "path"
+          "description": "ID of envelope"
+          "required": true
+          "schema":
+            "type": "integer"
+            "format": "int64"
+      "responses":
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 10
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1200
+                  "amount_spent":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 150
+                  "balance":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1050
+                  "category":
+                    "type": "string"
+                    "example": "food"
+                "xml":
+                  "name": "envelopes"
+            "application/x-www-form-urlencoded":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 10
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1200
+                  "amount_spent":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 150
+                  "balance":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 1050
+                  "category":
+                    "type": "string"
+                    "example": "food"
+                "xml":
+                  "name": "envelopes"
+        "400":
+          "description": "Envelope ID is Invalid"
+        "404":
+          "description": "Envelope ID not found"
+  "/transactions":
+    "get":
+      "tags":
+        - "transactions"
+      "summary": "Get all transactions"
+      "description": "Get all transaction listings"
+      "responses":
+        "default":
+          "description": "Unexpected error"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "message":
+                    "type": "string"
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                      "format": "int32"
+                      "examples":
+                        - 20
+                    "amount":
+                      "type": "integer"
+                      "format": "int64"
+                      "examples":
+                        - 2000
+                    "recipient_id":
+                      "type": "integer"
+                      "format": "int32"
+                      "examples":
+                        - 34
+                    "sender_id":
+                      "type": "integer"
+                      "format": "int32"
+                      "examples":
+                        - 34
+                    "date":
+                      "type": "string"
+                      "format": "date-time"
+                  "xml":
+                    "name": "transactions"
+    "post":
+      "tags":
+        - "transactions"
+      "summary": "Create a new transaction"
+      "description": "Make a new transaction"
+      "requestBody":
+        "description": "Create a new transaction"
+        "content":
+          "application/x-www-form-urlencoded":
+            "schema":
+              "required":
+                - "amount"
+                - "recipient_id"
+                - "sender_id"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "recipient_id":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 11
+                "sender_id":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 8
+              "xml":
+                "name": "transactions"
+          "application/json":
+            "schema":
+              "required":
+                - "amount"
+                - "recipient_id"
+                - "sender_id"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "recipient_id":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 11
+                "sender_id":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 8
+              "xml":
+                "name": "transactions"
+        "required": true
+      "responses":
+        "201":
+          "description": "Successful operation"
+        "400":
+          "description": "Invalid input"
+        "422":
+          "description": "Validation exception"
+  "/transactions/{transactionId}":
+    "get":
+      "tags":
+        - "transactions"
+      "summary": "Get a single transaction"
+      "description": "Get a single transaction"
+      "parameters":
+        -
+          "name": "transactionId"
+          "in": "path"
+          "description": "ID of transaction"
+          "required": true
+          "schema":
+            "type": "integer"
+            "format": "int64"
+      "responses":
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 20
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 2000
+                  "recipient_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "sender_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "date":
+                    "type": "string"
+                    "format": "date-time"
+                "xml":
+                  "name": "transactions"
+            "application/x-www-form-urlencoded":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 20
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 2000
+                  "recipient_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "sender_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "date":
+                    "type": "string"
+                    "format": "date-time"
+                "xml":
+                  "name": "transactions"
+        "400":
+          "description": "Transaction ID is Invalid"
+        "404":
+          "description": "Transaction ID not found"
+    "put":
+      "tags":
+        - "transactions"
+      "summary": "Update a transaction by ID"
+      "description": "Update a transaction by ID"
+      "parameters":
+        -
+          "name": "transactionId"
+          "in": "path"
+          "description": "ID of transaction"
+          "required": true
+          "schema":
+            "type": "integer"
+            "format": "int64"
+      "requestBody":
+        "description": "Update an transaction"
+        "content":
+          "application/json":
+            "schema":
+              "required":
+                - "amount"
+                - "recipient_id"
+                - "sender_id"
+              "type": "object"
+              "properties":
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 1200
+                "recipient_id":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 11
+                "sender_id":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 8
+              "xml":
+                "name": "transactions"
+          "application/x-www-form-urlencoded":
+            "schema":
+              "type": "object"
+              "properties":
+                "id":
+                  "type": "integer"
+                  "format": "int32"
+                  "examples":
+                    - 20
+                "amount":
+                  "type": "integer"
+                  "format": "int64"
+                  "examples":
+                    - 2000
+                "recipient_id":
+                  "type": "integer"
+                  "format": "int32"
+                  "examples":
+                    - 34
+                "sender_id":
+                  "type": "integer"
+                  "format": "int32"
+                  "examples":
+                    - 34
+                "date":
+                  "type": "string"
+                  "format": "date-time"
+              "xml":
+                "name": "transactions"
+        "required": true
+      "responses":
+        "200":
+          "description": "Successful operation"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 20
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 2000
+                  "recipient_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "sender_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "date":
+                    "type": "string"
+                    "format": "date-time"
+                "xml":
+                  "name": "transactions"
+            "application/x-www-form-urlencoded":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 20
+                  "amount":
+                    "type": "integer"
+                    "format": "int64"
+                    "examples":
+                      - 2000
+                  "recipient_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "sender_id":
+                    "type": "integer"
+                    "format": "int32"
+                    "examples":
+                      - 34
+                  "date":
+                    "type": "string"
+                    "format": "date-time"
+                "xml":
+                  "name": "transactions"
+        "400":
+          "description": "Transaction ID is Invalid"
+        "404":
+          "description": "Transaction ID not found"
+    "delete":
+      "tags":
+        - "transactions"
+      "summary": "Delete a transaction by ID"
+      "description": "Delete a transaction by ID"
+      "parameters":
+        -
+          "name": "transactionId"
+          "in": "path"
+          "description": "ID of transaction"
+          "required": true
+          "schema":
+            "type": "integer"
+            "format": "int64"
+      "responses":
+        "200":
+          "description": "Transaction deleted operation"
+        "400":
+          "description": "Transaction ID is Invalid"
+        "404":
+          "description": "Transaction ID not found"
+"components":
+  "schemas":
+    "CreateTransaction":
+      "required":
+        - "amount"
+        - "recipient_id"
+        - "sender_id"
+      "type": "object"
+      "properties":
+        "amount":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 1200
+        "recipient_id":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 11
+        "sender_id":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 8
+      "xml":
+        "name": "transactions"
+    "CreateEnvelope":
+      "required":
+        - "amount"
+        - "category"
+      "type": "object"
+      "properties":
+        "amount":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 1200
+        "category":
+          "type": "string"
+          "example": "food"
+      "xml":
+        "name": "envelopes"
+    "Envelope":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 10
+        "amount":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 1200
+        "amount_spent":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 150
+        "balance":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 1050
+        "category":
+          "type": "string"
+          "example": "food"
+      "xml":
+        "name": "envelopes"
+    "Transaction":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "integer"
+          "format": "int32"
+          "examples":
+            - 20
+        "amount":
+          "type": "integer"
+          "format": "int64"
+          "examples":
+            - 2000
+        "recipient_id":
+          "type": "integer"
+          "format": "int32"
+          "examples":
+            - 34
+        "sender_id":
+          "type": "integer"
+          "format": "int32"
+          "examples":
+            - 34
+        "date":
+          "type": "string"
+          "format": "date-time"
+      "xml":
+        "name": "transactions"
+    "Error":
+      "type": "object"
+      "properties":
+        "message":
+          "type": "string"

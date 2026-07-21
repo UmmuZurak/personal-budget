@@ -1,5 +1,3 @@
-const { getEnvelopeByCategory } = require("./queries");
-
 const validateAmount = (req, res, next) => {
   const amount = Number(req.body.amount);
 
@@ -11,11 +9,6 @@ const validateAmount = (req, res, next) => {
   // check if amount is greater than 0
   if (amount <= 0) {
     return res.status(400).send("Amount must be more than 0.");
-  }
-
-  //check if amount sent is more than envelope's balance
-  if (amount > req.envelope.balance) {
-    return res.status(400).send("Amount is more than remaining balance.");
   }
 
   next();
